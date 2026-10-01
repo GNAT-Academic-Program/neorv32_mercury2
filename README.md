@@ -47,7 +47,7 @@ up. To reset by hand (to get back to the bootloader), touch DIO 0 to GND.
 ## Get the sources
 
 ```
-git clone --recurse-submodules <this repo>
+git clone --recurse-submodules https://github.com/GNAT-Academic-Program/neorv32_mercury2
 ```
 
 If you already cloned without the flag: `git submodule update --init`.
