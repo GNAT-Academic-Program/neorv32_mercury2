@@ -13,7 +13,7 @@ The version is recorded in two places:
 - `neorv32/` is a git submodule checked out at the corresponding tag.
 - `NEORV32_VERSION` contains the expected tag. CI checks that the submodule matches it.
 
-Software built for this platform should use the NEORV32 sources included in this repository. In particular:
+Software targeting this platform should use the NEORV32 sources included in this repository. In particular:
 
 - SVD: `neorv32/sw/svd/neorv32.svd`
 - Image generator: `neorv32/sw/image_gen/`
@@ -24,28 +24,28 @@ This keeps the hardware and software sides on the same NEORV32 version.
 
 The SoC configuration is defined in `rtl/neorv32_mercury2_top.vhd`.
 
-| Item | Value |
-|---|---|
-| NEORV32 version | v1.13.6, `mimpid` CSR reads `0x01130600` |
-| Clock | 50 MHz |
-| ISA | `rv32imc_zicsr_zicntr_zifencei` |
-| Instruction memory | 128 KB at `0x00000000` |
-| Data memory | 64 KB at `0x80000000` |
-| Boot | stock UART bootloader, 19200 8N1 |
-| Peripherals | GPIO (3 outputs), UART0, CLINT, SYSINFO |
+| Item               | Value                                    |
+| ------------------ | ---------------------------------------- |
+| NEORV32 version    | v1.13.6, `mimpid` CSR reads `0x01130600` |
+| Clock              | 50 MHz                                   |
+| ISA                | `rv32imc_zicsr_zicntr_zifencei`          |
+| Instruction memory | 128 KB at `0x00000000`                   |
+| Data memory        | 64 KB at `0x80000000`                    |
+| Boot               | stock UART bootloader, 19200 8N1         |
+| Peripherals        | GPIO (3 outputs), UART0, CLINT, SYSINFO  |
 
 Board wiring:
 
-| Signal | FPGA pin | Goes to |
-|---|---|---|
-| `clk_i` | N14 | 50 MHz oscillator |
-| `gpio_o[0..2]` | M1, A14, A13 | user LEDs. LED 0 is the bootloader status LED |
-| `uart0_txd_o` / `uart0_rxd_i` | N11 / E11 | FT2232H channel B, the second USB serial port |
-| `rstn_i` | C12 | FPGA-direct I/O 0, pulled up. Short to GND to reset |
+| Signal                        | FPGA pin     | Goes to                                        |
+| ----------------------------- | ------------ | ---------------------------------------------- |
+| `clk_i`                       | N14          | 50 MHz oscillator                              |
+| `gpio_o[0..2]`                | M1, A14, A13 | user LEDs. LED 0 is the bootloader status LED  |
+| `uart0_txd_o` / `uart0_rxd_i` | N11 / E11    | FT2232H channel B, the second USB serial port  |
+| `rstn_i`                      | C12          | FPGA-direct I/O 0, pulled up. Short to GND to reset |
 
 The Mercury 2 module does not have a push button connected to this design, so reset is generated inside the FPGA at power-up.
 
-To reset the system manually and return to the bootloader, briefly connect DIO 0 to GND.
+To reset manually and return to the bootloader, briefly connect DIO 0 to GND.
 
 ## Get the sources
 
@@ -53,7 +53,7 @@ To reset the system manually and return to the bootloader, briefly connect DIO 0
 git clone --recurse-submodules https://github.com/GNAT-Academic-Program/neorv32_mercury2.git
 ```
 
-If the repository was cloned without `--recurse-submodules`, initialize the submodule with:
+If the repository was cloned without `--recurse-submodules`:
 
 ```sh
 git submodule update --init
@@ -65,7 +65,7 @@ Building requires Vivado. The free edition supports both Mercury 2 FPGA sizes.
 
 Vivado does not need to be on `PATH`; the build scripts look for an installed version automatically.
 
-Prebuilt bitstreams are also attached to GitHub releases, so building locally is not required if you only want to use the board.
+Prebuilt bitstreams are also attached to GitHub releases, so students do not need to build the FPGA image locally unless they want to modify the hardware.
 
 Run the appropriate command from the root of the repository.
 
@@ -105,7 +105,7 @@ or:
 vivado/mercury2/neorv32_mercury2_35t.bit
 ```
 
-The FPGA size must be specified explicitly because the two boards require different bitstreams.
+The FPGA size must be specified because the two Mercury 2 variants use different bitstreams.
 
 ### If Vivado is not found
 
@@ -123,17 +123,19 @@ Windows:
 set VIVADO=C:\Vivado\2026.1\Vivado\bin\vivado.bat
 ```
 
-On Windows, point `VIVADO` to `bin\vivado.bat`. The `vivado.exe` under `bin\unwrapped` is not the normal launcher and can fail because of missing runtime DLLs.
+On Windows, point `VIVADO` to `bin\vivado.bat`.
+
+The `vivado.exe` under `bin\unwrapped` is not the normal launcher and may fail because required runtime DLLs are not set up.
 
 ## Load the bitstream on the board
 
-Connect the Mercury 2 using its USB cable, then run the appropriate command from the root of the repository.
+Connect the Mercury 2 with its USB cable, then run the appropriate command from the root of the repository.
 
 The examples below use the 35T bitstream. For a 100T board, replace the filename with `neorv32_mercury2_100t.bit`.
 
 ### Windows
 
-The command works from both PowerShell and `cmd`:
+Works from both PowerShell and `cmd`:
 
 ```bat
 .\flash\flash.bat vivado\mercury2\neorv32_mercury2_35t.bit
@@ -149,7 +151,7 @@ The Linux programmer uses `sudo` to access the board and may ask for your passwo
 
 ### Expected output
 
-The programmer should report `Found flash`, show programming progress up to 100%, and then print the programming time.
+The programmer should report `Found flash`, show progress up to 100%, and then print the programming time.
 
 Programming can take up to about a minute.
 
@@ -191,7 +193,7 @@ If the programmer reports:
 No Mercury 2 FPGA board found
 ```
 
-check the USB connection and make sure another application is not currently using the board, such as Vivado Hardware Manager or a serial terminal connected to the relevant FTDI interface.
+check the USB connection and make sure another application is not using the board, such as Vivado Hardware Manager or a serial terminal connected to the relevant FTDI interface.
 
 On Linux, the programmer temporarily unloads the FTDI serial driver while writing the flash. Other FTDI serial ports on the machine may therefore disappear for a few seconds and return when programming completes.
 
@@ -205,19 +207,77 @@ They correspond to commit `fb3118b`.
 
 Copyright 2019 MicroNova LLC, MIT license.
 
+## Serial console
+
+The console scripts automatically locate the board's serial port and open it at **19200 8N1**.
+
+No additional serial terminal software is required.
+
+Run the command from the root of the repository. Press **Escape** to quit.
+
+### Windows
+
+Works from both PowerShell and `cmd`:
+
+```bat
+.\console\console.bat
+```
+
+### Linux
+
+```sh
+bash console/console.sh
+```
+
+### Troubleshooting
+
+If Windows reports:
+
+```text
+the board is plugged in but has no serial port
+```
+
+Windows may need to be configured once to expose FT2232H channel B as a virtual COM port:
+
+1. Open Device Manager.
+2. Open **Universal Serial Bus controllers**.
+3. Double-click **USB Serial Converter B**.
+4. Open the **Advanced** tab.
+5. Enable **Load VCP**.
+6. Click OK.
+7. Unplug and reconnect the board.
+8. Run the console again.
+
+If Windows reports:
+
+```text
+the board is not seen by Windows
+```
+
+check that the board is connected.
+
+When using a virtual machine, the USB device may also need to be attached to the VM again after the board is unplugged or reconnected.
+
+If Linux reports a permission error, the console script prints the equivalent command using `sudo`.
+
+If more than one compatible board is detected, the script prints the available ports and the command to select one explicitly.
+
 ## First boot
 
 1. Load the bitstream onto the board.
-2. Open the second USB serial port at **19200 8N1**.
-3. Reset or power-cycle the board if necessary.
+2. LED 0 should blink roughly twice per second while the bootloader is running.
+3. Open the serial console.
+4. Press `r` to restart the bootloader. It should print `NEORV32 Bootloader` and begin an 8-second countdown.
+5. Press any key to stop the countdown and reach the `CMD:>` prompt.
+6. Press `i` to display the system information.
 
-The bootloader should print:
+The `HWV` line should report:
 
 ```text
-NEORV32 Bootloader
+0x01130600
 ```
 
-LED 0 also blinks roughly twice per second while the bootloader is running.
+This corresponds to NEORV32 v1.13.6.
 
 If LED 0 remains continuously on instead of blinking, the bootloader has likely stopped before reaching its normal loop.
 
@@ -275,6 +335,7 @@ rtl/neorv32_mercury2_top.vhd   board top and SoC configuration
 build.sh, build.bat             Linux and Windows build launchers
 vivado/mercury2/                Vivado project script and constraints
 flash/                          flash scripts and mercury2_prog
+console/                        serial console scripts
 sim/                            GHDL smoke test
 scripts/check_pin.sh            NEORV32 version check
 ```
@@ -282,7 +343,7 @@ scripts/check_pin.sh            NEORV32 version check
 The repository layout follows the general structure used by
 [neorv32-setups](https://github.com/stnolting/neorv32-setups): the same submodule name and location, the same board-directory depth, and compatible top-level port naming.
 
-This should also make it relatively straightforward to contribute the Mercury 2 setup upstream later if desired.
+This should also make it straightforward to contribute the Mercury 2 setup upstream later if desired.
 
 ## License
 
