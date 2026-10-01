@@ -1,0 +1,6 @@
+vivado/mercury2/work/
+vivado/mercury2/*.bit
+vivado/mercury2/.Xil/
+sim/build/
+*.jou
+*.log

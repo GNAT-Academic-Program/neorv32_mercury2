@@ -1,0 +1,20 @@
+name: check
+
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      - name: Fetch NEORV32 tags
+        run: git -C neorv32 fetch --tags --quiet
+      - name: NEORV32 version pin
+        run: ./scripts/check_pin.sh
+      - name: Install GHDL
+        run: sudo apt-get update && sudo apt-get install -y ghdl
+      - name: Boot smoke test
+        run: ./sim/run.sh
