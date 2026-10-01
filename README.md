@@ -47,7 +47,7 @@ up. To reset by hand (to get back to the bootloader), touch DIO 0 to GND.
 ## Get the sources
 
 ```
-git clone --recurse-submodules <this repo>
+git clone --recurse-submodules https://github.com/GNAT-Academic-Program/neorv32_mercury2.git
 ```
 
 If you already cloned without the flag: `git submodule update --init`.
@@ -61,11 +61,12 @@ Students do not need to build. Prebuilt bitstreams are attached to each GitHub
 release.
 
 Run the command for your system and your FPGA size, from the root of the repo.
+There is no default size: the script refuses to run without one.
 
 ### Linux, 100T
 
 ```
-./build.sh
+./build.sh 100t
 ```
 
 ### Linux, 35T
@@ -77,7 +78,7 @@ Run the command for your system and your FPGA size, from the root of the repo.
 ### Windows, 100T
 
 ```
-build.bat
+build.bat 100t
 ```
 
 ### Windows, 35T
@@ -103,7 +104,7 @@ export VIVADO=/tools/Xilinx/2026.1/Vivado/bin/vivado
 Windows, pointing at `vivado.bat`:
 
 ```
-set VIVADO=C:\Xilinx\2026.1\Vivado\bin\vivado.bat
+set VIVADO=C:\Vivado\2026.1\Vivado\bin\vivado.bat
 ```
 
 On Windows the file to use is always `bin\vivado.bat`. Do not use the
