@@ -47,25 +47,67 @@ up. To reset by hand (to get back to the bootloader), touch DIO 0 to GND.
 ## Get the sources
 
 ```
-git clone --recurse-submodules https://github.com/GNAT-Academic-Program/neorv32_mercury2
+git clone --recurse-submodules <this repo>
 ```
 
 If you already cloned without the flag: `git submodule update --init`.
 
 ## Build the bitstream
 
-Needs Vivado (the free edition covers both FPGA sizes).
+Needs Vivado (the free edition covers both FPGA sizes). Vivado does not need
+to be on your PATH: the build script finds the newest install by itself.
+
+Students do not need to build. Prebuilt bitstreams are attached to each GitHub
+release.
+
+Run the command for your system and your FPGA size, from the root of the repo.
+
+### Linux, 100T
 
 ```
-cd vivado/mercury2
-vivado -mode batch -nojournal -nolog -source create_project.tcl               # 100T
-vivado -mode batch -nojournal -nolog -source create_project.tcl -tclargs 35t  # 35T
+./build.sh
 ```
 
-Result: `vivado/mercury2/neorv32_mercury2_<variant>.bit`.
+### Linux, 35T
 
-Students do not need to do this. Prebuilt bitstreams are attached to each
-GitHub release.
+```
+./build.sh 35t
+```
+
+### Windows, 100T
+
+```
+build.bat
+```
+
+### Windows, 35T
+
+```
+build.bat 35t
+```
+
+Result: `vivado/mercury2/neorv32_mercury2_100t.bit` or
+`vivado/mercury2/neorv32_mercury2_35t.bit`.
+
+### If the script says "Vivado not found"
+
+Your Vivado is installed in an unusual place. Tell the script where it is, then
+run the build command again.
+
+Linux, pointing at the `vivado` launcher:
+
+```
+export VIVADO=/tools/Xilinx/2026.1/Vivado/bin/vivado
+```
+
+Windows, pointing at `vivado.bat`:
+
+```
+set VIVADO=C:\Xilinx\2026.1\Vivado\bin\vivado.bat
+```
+
+On Windows the file to use is always `bin\vivado.bat`. Do not use the
+`vivado.exe` under `bin\unwrapped`: it fails with a missing DLL.
 
 ## First boot
 
@@ -74,6 +116,8 @@ GitHub release.
 3. The bootloader prints `NEORV32 Bootloader` and LED 0 turns on.
 
 ## Simulation
+
+Linux only (on Windows, use WSL). Needs GHDL.
 
 ```
 ./sim/run.sh
@@ -92,6 +136,8 @@ Once a year, in one commit:
 4. `./scripts/check_pin.sh && ./sim/run.sh`
 5. Rebuild, test on the board, publish a new release.
 
+Steps 1 and 4 are Linux commands. On Windows, run them in Git Bash or WSL.
+
 The software side then regenerates its registers from the new SVD and updates
 its expected `mimpid` value.
 
@@ -100,7 +146,8 @@ its expected `mimpid` value.
 ```
 neorv32/                        NEORV32, pinned submodule
 rtl/neorv32_mercury2_top.vhd    board top, the SoC contract
-vivado/mercury2/                build script and constraints
+build.sh, build.bat              build launchers for Linux and Windows
+vivado/mercury2/                Vivado script and constraints
 sim/                            GHDL smoke test
 scripts/check_pin.sh            version pin check
 ```

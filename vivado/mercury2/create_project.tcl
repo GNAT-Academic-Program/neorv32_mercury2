@@ -1,7 +1,7 @@
 # Build the NEORV32 Mercury 2 bitstream.
 #
-#   vivado -mode batch -nojournal -nolog -source create_project.tcl
-#   vivado -mode batch -nojournal -nolog -source create_project.tcl -tclargs 35t
+# Do not call this directly. Use build.sh (Linux) or build.bat (Windows) at the
+# root of the repo: they find Vivado and pass the variant (100t or 35t).
 #
 # Default variant is the 100T. Output: neorv32_mercury2_<variant>.bit next to this script.
 
