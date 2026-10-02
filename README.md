@@ -28,7 +28,7 @@ The SoC configuration is defined in `rtl/neorv32_mercury2_top.vhd`.
 | ------------------ | ---------------------------------------- |
 | NEORV32 version    | v1.13.6, `mimpid` CSR reads `0x01130600` |
 | Clock              | 50 MHz                                   |
-| ISA                | `rv32imc_zicsr_zicntr_zifencei`          |
+| ISA                | `rv32imac_zicsr_zicntr_zifencei`         |
 | Instruction memory | 128 KB at `0x00000000`                   |
 | Data memory        | 64 KB at `0x80000000`                    |
 | Boot               | stock UART bootloader, 19200 8N1         |
