@@ -22,7 +22,7 @@ This keeps the hardware and software sides on the same NEORV32 version.
 
 ## SoC configuration
 
-The SoC configuration is defined in `rtl/neorv32_mercury2_top.vhd`.
+The SoC configuration is defined in `rtl/neorv32_mercury2_soc.vhd`.
 
 | Item               | Value                                    |
 | ------------------ | ---------------------------------------- |
@@ -33,6 +33,7 @@ The SoC configuration is defined in `rtl/neorv32_mercury2_top.vhd`.
 | Data memory        | 64 KB at `0x80000000`                    |
 | Boot               | stock UART bootloader, 19200 8N1         |
 | Peripherals        | GPIO (3 outputs), UART0, CLINT, SYSINFO  |
+| External bus       | off in the plain bitstream; a project turns it on, see below |
 
 Board wiring:
 
@@ -46,6 +47,19 @@ Board wiring:
 The Mercury 2 module does not have a push button connected to this design, so reset is generated inside the FPGA at power-up.
 
 To reset manually and return to the bootloader, briefly connect DIO 0 to GND.
+
+## Composing a project
+
+This repo is the plain SoC. A project that adds its own logic (an LCD controller, a GPU, a link) does not fork it. It takes this repo as a git submodule and composes:
+
+- `rtl/neorv32_mercury2_soc.vhd` is the entity to instantiate. With `XBUS_EN => true` it brings the NEORV32 external bus out as the `xbus_*` ports (a pipelined Wishbone subset, see "XBUS" in the NEORV32 datasheet). The project attaches its logic there and owns every address from `0x90000000` up. An access that no slave acknowledges ends in a bus error after `XBUS_TIMEOUT` clock cycles (2048 by default), so a wrong address traps instead of hanging the CPU.
+- `GPIO_NUM` and `PWM_NUM` let a project grow the SoC's own GPIO and PWM without writing any RTL: buttons on `gpio_i`, a speaker or a backlight on `pwm_o`. `gpio_o(2 downto 0)` stay the module's LEDs.
+- `rstn_o` is the SoC's clean reset, for the project's logic.
+- `vivado/mercury2/board.tcl` has the Vivado helpers. `board_project` sets up the part, the NEORV32 core, the SoC and the module's pins (`mercury2.xdc`). `board_build` makes the bitstream. The project's own `create_project.tcl` sources `board.tcl`, calls `board_project`, adds its RTL, its top and its own XDC, then calls `board_build` with its top.
+- Because `mercury2.xdc` is always added, a project top must keep the port names it constrains: `clk_i`, `rstn_i`, `gpio_o[0..2]`, `uart0_txd_o`, `uart0_rxd_i`, `clk_en_o`. The project's XDC only adds the pins its own logic uses.
+- `rtl/neorv32_mercury2_top.vhd` and `vivado/mercury2/create_project.tcl` are what this composition looks like with nothing attached. Start a project top from them.
+
+[yobemag](https://github.com/GNAT-Academic-Program/yobemag) is the first project built this way.
 
 ## Get the sources
 
@@ -291,7 +305,7 @@ GHDL is required.
 ./sim/run.sh
 ```
 
-The test boots the Mercury 2 top-level design in GHDL and checks that the NEORV32 bootloader banner is emitted through UART0.
+The test boots the plain top in GHDL and checks that the NEORV32 bootloader banner is emitted through UART0. It also elaborates the SoC with `XBUS_EN => true` and a one-register slave attached (`sim/tb_xbus.vhd`), which is the shape a project top has.
 
 A complete simulation takes about three minutes.
 
@@ -331,12 +345,13 @@ The software side should then regenerate its register definitions from the updat
 
 ```text
 neorv32/                        NEORV32 pinned submodule
-rtl/neorv32_mercury2_top.vhd   board top and SoC configuration
+rtl/neorv32_mercury2_soc.vhd   the SoC: configuration, and the entity a project composes with
+rtl/neorv32_mercury2_top.vhd   the plain bitstream: the SoC with nothing attached
 build.sh, build.bat             Linux and Windows build launchers
-vivado/mercury2/                Vivado project script and constraints
+vivado/mercury2/                board.tcl (Vivado helpers), project script, constraints
 flash/                          flash scripts and mercury2_prog
 console/                        serial console scripts
-sim/                            GHDL smoke test
+sim/                            GHDL smoke test and XBUS elaboration check
 scripts/check_pin.sh            NEORV32 version check
 ```
 

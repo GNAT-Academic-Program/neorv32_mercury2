@@ -15,8 +15,14 @@ flags="--std=08 --workdir=$build -P$build"
 # Core files in the order given by the pinned NEORV32 release.
 core_files=$(sed "s|\$NEORV32_HOME|$NEORV32_HOME|" "$NEORV32_HOME/rtl/file_list_core.f")
 ghdl -a $flags --work=neorv32 $core_files
-ghdl -a $flags "$root/rtl/neorv32_mercury2_top.vhd" "$here/tb_mercury2.vhd"
+ghdl -a $flags "$root/rtl/neorv32_mercury2_soc.vhd" "$root/rtl/neorv32_mercury2_top.vhd" \
+              "$here/tb_mercury2.vhd" "$here/tb_xbus.vhd"
 ghdl -e $flags tb_mercury2
+
+# The composition path: the SoC with XBUS on and a slave attached must elaborate.
+# Not run; the bootloader never touches XBUS, so running it would prove nothing more.
+ghdl -e $flags tb_xbus
+echo "PASS: SoC with XBUS_EN => true elaborates"
 
 ghdl -r $flags tb_mercury2 --stop-time="${STOP_TIME:-40ms}" --ieee-asserts=disable | tee sim.log
 

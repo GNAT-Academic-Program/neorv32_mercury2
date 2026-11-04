@@ -1,5 +1,5 @@
 ## MicroNova Mercury 2 (XC7A35T / XC7A100T, FTG256). Same pinout for both variants.
-## Top entity: neorv32_mercury2_top
+## Top entity: neorv32_mercury2_top, or a project top that keeps these port names (see README, "Composing a project")
 ## Pin source: LiteX-Boards platform file micronova_mercury2.py. Check against the
 ## Mercury 2 reference manual before trusting a pin that is not yet proven on hardware.
 
